@@ -7,7 +7,7 @@ use Illuminate\Foundation\Http\FormRequest;
 class TransferRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
+     * Определяет, разрешено ли пользователю выполнять этот запрос.
      */
     public function authorize(): bool
     {
@@ -15,7 +15,7 @@ class TransferRequest extends FormRequest
     }
 
     /**
-     * Get the validation rules that apply to the request.
+     * Получает правила валидации, которые применяются к этому запросу.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */

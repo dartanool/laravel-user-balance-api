@@ -8,10 +8,22 @@ use App\Models\User;
 use App\Models\Balance;
 use App\Models\Transaction;
 
+/**
+ * Class BalanceApiTest
+ *
+ * Тестирование API для работы с балансом пользователей.
+ *
+ * @package Tests\Feature
+ */
 class BalanceApiTest extends TestCase
 {
     use RefreshDatabase;
 
+    /**
+     * Проверяет, что при пополнении создается баланс и транзакция.
+     *
+     * @return void
+     */
     public function test_deposit_creates_balance_and_transaction()
     {
         $user = User::factory()->create();
@@ -41,6 +53,11 @@ class BalanceApiTest extends TestCase
         ]);
     }
 
+    /**
+     * Проверяет, что при снятии средств баланс уменьшается и создается транзакция.
+     *
+     * @return void
+     */
     public function test_withdraw_decreases_balance_and_creates_transaction()
     {
         $user = User::factory()->create();
@@ -66,7 +83,11 @@ class BalanceApiTest extends TestCase
         ]);
     }
 
-
+    /**
+     * Проверяет, что перевод средств между пользователями корректно обновляет балансы и создает транзакции.
+     *
+     * @return void
+     */
     public function test_transfer_moves_funds_between_users()
     {
         $user1 = User::factory()->create();
@@ -112,11 +133,15 @@ class BalanceApiTest extends TestCase
         ]);
     }
 
+    /**
+     * Проверяет, что API возвращает текущий баланс пользователя или 0, если баланс не создан.
+     *
+     * @return void
+     */
     public function test_balance_returns_current_amount_or_zero()
     {
         $user = User::factory()->create();
 
-        // Проверяем баланс без записи
         $response = $this->getJson("/api/balance/{$user->id}");
         $response->assertStatus(200)
             ->assertJson([
@@ -124,7 +149,6 @@ class BalanceApiTest extends TestCase
                 'balance' => 0
             ]);
 
-        // Создаём баланс
         $user->balance()->create(['amount' => 300]);
         $response = $this->getJson("/api/balance/{$user->id}");
         $response->assertStatus(200)
@@ -134,6 +158,11 @@ class BalanceApiTest extends TestCase
             ]);
     }
 
+    /**
+     * Проверяет, что API возвращает 404, если пользователь не найден.
+     *
+     * @return void
+     */
     public function test_balance_returns_404_if_user_not_found()
     {
         $response = $this->getJson('/api/balance/999');

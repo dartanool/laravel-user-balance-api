@@ -7,7 +7,6 @@ use App\Http\Requests\TransferRequest;
 use App\Http\Requests\WithdrawRequest;
 use App\Models\Transaction;
 use App\Models\User;
-use http\Env\Response;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 
@@ -45,6 +44,7 @@ class BalanceController
             'balance' => $user->balance->amount
         ], 200);
     }
+
     /**
      * Списание средств с пользователя.
      *
@@ -85,6 +85,7 @@ class BalanceController
             'balance' => $user->balance->amount
         ], 200);
     }
+
     /**
      * Перевод средств от одного пользователя другому.
      *
@@ -135,6 +136,7 @@ class BalanceController
             'amount' => $data['amount']
         ], 200);
     }
+
     /**
      * Получение текущего баланса пользователя.
      *

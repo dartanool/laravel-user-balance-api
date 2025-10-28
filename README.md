@@ -34,3 +34,21 @@
 - users — пользователи
 - balances — балансы пользователей
 - transactions — история операций (deposit, withdraw, transfer_in, transfer_out)
+
+---
+
+## Тестирование
+
+1. Настройте .env.testing для тестовой базы PostgreSQL:
+    ```bash 
+    DB_CONNECTION=pgsql
+    DB_HOST=127.0.0.1
+    DB_PORT=5432
+    DB_DATABASE=balance_test
+    DB_USERNAME=postgres
+    DB_PASSWORD=postgres
+    APP_KEY=base64:GENERATED_KEY
+2. Запуск тестов
+    ```bash 
+   docker-compose exec app 
+   php artisan test
