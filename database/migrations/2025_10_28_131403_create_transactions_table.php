@@ -17,7 +17,6 @@ return new class extends Migration
             $table->enum('type', ['deposit', 'withdraw', 'transfer_in', 'transfer_out']);
             $table->decimal('amount', 15, 2);
             $table->text('comment')->nullable();
-            $table->foreignId('related_user')->nullable()->constrained('users');
             $table->timestamps();
         });
     }
