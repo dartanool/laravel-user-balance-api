@@ -10,6 +10,20 @@
 
 ---
 
+##  Архитектура и использованные классы
+
+- **DTO (Data Transfer Objects)** — `DepositDTO`, `WithdrawDTO`, `TransferDTO`  
+
+- **Requests** — `DepositRequest`, `WithdrawRequest`, `TransferRequest`  
+
+- **Service** — `BalanceService`  
+
+- **Resource** — `BalanceResource`  
+
+- **Controller** — `BalanceController`  
+
+---
+
 ## Установка через Docker
 
 1. Клонируем репозиторий:
@@ -50,5 +64,5 @@
     APP_KEY=base64:GENERATED_KEY
 2. Запуск тестов
     ```bash 
-   docker-compose exec app 
+   docker-compose exec php-fpm bash 
    php artisan test
