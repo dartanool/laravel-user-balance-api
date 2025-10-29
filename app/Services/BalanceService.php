@@ -98,7 +98,7 @@ class BalanceService
         return DB::transaction(function () use ($from, $to, $dto) {
             $fromBalance = $from->balance;
             if (!$fromBalance || $fromBalance->amount < $dto->amount) {
-                throw new \RuntimeException('Недостаточно средств'); // мне надо 404,а не 500
+                throw new \RuntimeException('Недостаточно средств');
             }
 
             $fromBalance->amount -= $dto->amount;
@@ -137,7 +137,7 @@ class BalanceService
      */
     public function balance(int $userId)
     {
-        $user = User::find($userId);
+        $user =User::find($userId);
         if (!$user) {
             throw new ModelNotFoundException('Пользователь не найден');
         }

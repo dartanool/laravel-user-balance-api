@@ -164,7 +164,7 @@ class BalanceApiTest extends TestCase
     {
         $response = $this->getJson('/api/balance/999');
         $response->assertStatus(404)
-            ->assertJson(['error' => 'Пользователь не найден']);
+            ->assertJson(['message' => 'Пользователь не найден']);
     }
     /**
      * Проверяет невозможность перевода при недостатке средств.
@@ -187,7 +187,7 @@ class BalanceApiTest extends TestCase
 
         $response->assertStatus(409)
             ->assertJson([
-                'error' => 'Недостаточно средств',
+                'message' => 'Недостаточно средств',
             ]);
     }
 }

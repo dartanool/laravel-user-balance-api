@@ -28,11 +28,11 @@ class BalanceController
     public function deposit(DepositRequest $request): JsonResponse
     {
         $dto = DepositDTO::fromArray($request->validated());
-        try{
-            $balance = $this->balanceService->deposit($dto);
-        } catch (ModelNotFoundException $exception){
-            return response()->json(['error' => $exception->getMessage()], 404);
-        }
+        $balance = $this->balanceService->deposit($dto);
+//        try{
+//        } catch (ModelNotFoundException $exception){
+//            return response()->json(['error' => $exception->getMessage()], 404);
+//        }
 
         return (new BalanceResource($balance))->response()->setStatusCode(200);
     }
@@ -46,14 +46,14 @@ class BalanceController
     public function withdraw(WithdrawRequest $request): JsonResponse
     {
         $dto = WithdrawDTO::fromArray($request->validated());
+        $balance = $this->balanceService->withdraw($dto);
 
-        try {
-            $balance = $this->balanceService->withdraw($dto);
-        } catch (ModelNotFoundException $exception) {
-            return response()->json(['error' => $exception->getMessage()], 404);
-        } catch (\RuntimeException $exception) {
-            return response()->json(['error' => $exception->getMessage()], 409);
-        }
+//        try {
+//        } catch (ModelNotFoundException $exception) {
+//            return response()->json(['error' => $exception->getMessage()], 404);
+//        } catch (\RuntimeException $exception) {
+//            return response()->json(['error' => $exception->getMessage()], 409);
+//        }
         return (new BalanceResource($balance))->response()->setStatusCode(200);
     }
 
@@ -68,14 +68,14 @@ class BalanceController
     public function transfer(TransferRequest $request): JsonResponse
     {
         $dto = TransferDTO::fromArray($request->validated());
+        $balance = $this->balanceService->transfer($dto);
 
-        try {
-            $balance = $this->balanceService->transfer($dto);
-        } catch (ModelNotFoundException $exception) {
-            return response()->json(['error' => $exception->getMessage()], 404);
-        } catch (\RuntimeException $exception) {
-            return response()->json(['error' => $exception->getMessage()], 409);
-        }
+//        try {
+//        } catch (ModelNotFoundException $exception) {
+//            return response()->json(['error' => $exception->getMessage()], 404);
+//        } catch (\RuntimeException $exception) {
+//            return response()->json(['error' => $exception->getMessage()], 409);
+//        }
         return response()->json([
             'from' => (new BalanceResource($balance['from']))->toArray($request),
             'to' => (new BalanceResource($balance['to']))->toArray($request),
@@ -90,12 +90,12 @@ class BalanceController
      */
     public function balance(int $userId): JsonResponse
     {
-        try {
-            $balance = $this->balanceService->balance($userId);
-
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['error' => 'Пользователь не найден'], 404);
-        }
+        $balance = $this->balanceService->balance($userId);
+//        try {
+//
+//        } catch (ModelNotFoundException $e) {
+//            return response()->json(['error' => 'Пользователь не найден'], 404);
+//        }
         return response()->json([
             'user_id' => $userId,
             'balance' => (float)$balance
