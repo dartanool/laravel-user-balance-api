@@ -57,10 +57,6 @@ class BalanceController
     {
         $data = $request->validated();
         $user = User::find($data['user_id']);
-
-        if (!$user) {
-            return response()->json(['error' => 'Пользователь не найден'], 404);
-        }
         $balance = $user->balance()->firstOrCreate(['user_id' => $user->id]);
 
         if ($balance->amount <= $data['amount']) {
@@ -146,11 +142,6 @@ class BalanceController
     public function balance(int $user_id): JsonResponse
     {
         $user = User::find($user_id);
-
-        if (!$user) {
-            return response()->json(['error' => 'Пользователь не найден'], 404);
-        }
-
         $balance = $user->balance;
         $amount = $balance ? $balance->amount : 0.00;
 
