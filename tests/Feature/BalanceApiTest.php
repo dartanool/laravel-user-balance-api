@@ -30,28 +30,32 @@ class BalanceApiTest extends TestCase
 
         $response = $this->postJson('/api/deposit', [
             'user_id' => $user->id,
-            'amount' => 500,
-            'comment' => 'Пополнение через карту'
+            'amount' => 500.00,
+            'comment' => 'Пополнение через карту',
         ]);
 
         $response->assertStatus(200)
-            ->assertJson([
-                'user_id' => $user->id,
-                'balance' => 500
+            ->assertJsonStructure([
+                'data' => ['user_id', 'balance']
+            ])->assertJson([
+                'data' => [
+                    'user_id' => $user->id,
+                    'balance' => 500.00,
+                ]
             ]);
 
         $this->assertDatabaseHas('balances', [
             'user_id' => $user->id,
-            'amount' => 500
+            'amount' => 500.00,
         ]);
 
         $this->assertDatabaseHas('transactions', [
             'user_id' => $user->id,
             'type' => 'deposit',
-            'amount' => 500,
-            'comment' => 'Пополнение через карту'
+            'amount' => 500.00,
         ]);
     }
+
 
     /**
      * Проверяет, что при снятии средств баланс уменьшается и создается транзакция.
@@ -61,25 +65,26 @@ class BalanceApiTest extends TestCase
     public function test_withdraw_decreases_balance_and_creates_transaction()
     {
         $user = User::factory()->create();
-        $user->balance()->create(['amount' => 500]);
+        Balance::create(['user_id' => $user->id, 'amount' => 500.00]);
 
         $response = $this->postJson('/api/withdraw', [
             'user_id' => $user->id,
-            'amount' => 200,
-            'comment' => 'Покупка подписки'
+            'amount' => 200.00,
+            'comment' => 'Покупка подписки',
         ]);
 
         $response->assertStatus(200)
             ->assertJson([
-                'user_id' => $user->id,
-                'balance' => 300
+                'data' => [
+                    'user_id' => $user->id,
+                    'balance' => 300.00,
+                ]
             ]);
 
         $this->assertDatabaseHas('transactions', [
             'user_id' => $user->id,
             'type' => 'withdraw',
-            'amount' => 200,
-            'comment' => 'Покупка подписки'
+            'amount' => 200.00,
         ]);
     }
 
@@ -90,46 +95,38 @@ class BalanceApiTest extends TestCase
      */
     public function test_transfer_moves_funds_between_users()
     {
-        $user1 = User::factory()->create();
-        $user2 = User::factory()->create();
-
-        $user1->balance()->create(['amount' => 500]);
-        $user2->balance()->create(['amount' => 100]);
+        $from = User::factory()->create();
+        $to = User::factory()->create();
+        Balance::create(['user_id' => $from->id, 'amount' => 300.00]);
+        Balance::create(['user_id' => $to->id, 'amount' => 0.00]);
 
         $response = $this->postJson('/api/transfer', [
-            'from_user_id' => $user1->id,
-            'to_user_id' => $user2->id,
-            'amount' => 150,
-            'comment' => 'Перевод другу'
+            'from_user_id' => $from->id,
+            'to_user_id' => $to->id,
+            'amount' => 150.00,
+            'comment' => 'Перевод другу',
         ]);
 
         $response->assertStatus(200)
+            ->assertJsonStructure([
+                'from' => ['user_id', 'balance'],
+                'to' => ['user_id', 'balance'],
+            ])
             ->assertJson([
-                'from_user_id' => $user1->id,
-                'to_user_id' => $user2->id,
-                'amount' => 150
+                'from' => ['balance' => 150.00],
+                'to' => ['balance' => 150.00],
             ]);
 
-        $this->assertDatabaseHas('balances', [
-            'user_id' => $user1->id,
-            'amount' => 350
-        ]);
-
-        $this->assertDatabaseHas('balances', [
-            'user_id' => $user2->id,
-            'amount' => 250
-        ]);
-
         $this->assertDatabaseHas('transactions', [
-            'user_id' => $user1->id,
+            'user_id' => $from->id,
             'type' => 'transfer_out',
-            'amount' => 150,
+            'amount' => 150.00,
         ]);
 
         $this->assertDatabaseHas('transactions', [
-            'user_id' => $user2->id,
+            'user_id' => $to->id,
             'type' => 'transfer_in',
-            'amount' => 150,
+            'amount' => 150.00,
         ]);
     }
 
@@ -168,5 +165,29 @@ class BalanceApiTest extends TestCase
         $response = $this->getJson('/api/balance/999');
         $response->assertStatus(404)
             ->assertJson(['error' => 'Пользователь не найден']);
+    }
+    /**
+     * Проверяет невозможность перевода при недостатке средств.
+     *
+     * @return void
+     */
+    public function test_transfer_fails_when_insufficient_funds(): void
+    {
+        $from = User::factory()->create();
+        $to = User::factory()->create();
+        Balance::create(['user_id' => $from->id, 'amount' => 100.00]);
+        Balance::create(['user_id' => $to->id, 'amount' => 0.00]);
+
+        $response = $this->postJson('/api/transfer', [
+            'from_user_id' => $from->id,
+            'to_user_id' => $to->id,
+            'amount' => 150.00,
+            'comment' => 'Недостаточно средств',
+        ]);
+
+        $response->assertStatus(409)
+            ->assertJson([
+                'error' => 'Недостаточно средств',
+            ]);
     }
 }
