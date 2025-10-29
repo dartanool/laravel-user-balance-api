@@ -38,7 +38,7 @@ class BalanceService
                 'amount' => $dto->amount,
                 'comment' => $dto->comment
             ]);
-            return $balance->refresh(); // перечитывает данные из базы -  не надо наверное
+            return $balance->refresh();
         });
     }
 
@@ -49,7 +49,7 @@ class BalanceService
      * @return Balance Обновлённый баланс пользователя
      *
      * @throws ModelNotFoundException Если пользователь не найден
-     * @throws \RuntimeException Если недостаточно средств
+     * @throws \App\Exceptions\InsufficientFundsException Если недостаточно средств
      */
     public function withdraw(WithdrawDTO $dto): Balance
     {
@@ -57,11 +57,12 @@ class BalanceService
         if (!$user) {
             throw new ModelNotFoundException('Пользователь не найден');
         }
+        if (!$user->balance || $user->balance->amount < $dto->amount) {
+            throw new \App\Exceptions\InsufficientFundsException('Недостаточно средств');
+        }
         return DB::transaction(function () use ($user, $dto) {
             $balance = $user->balance;
-            if (!$balance || $balance->amount < $dto->amount) {
-                throw new \RuntimeException('Недостаточно средств');
-            }
+
 
             $balance->amount -= $dto->amount;
             $balance->save();
@@ -84,7 +85,7 @@ class BalanceService
      * @return array Объект с ключами 'from' и 'to', содержащими обновлённые балансы
      *
      * @throws ModelNotFoundException Если один из пользователей не найден
-     * @throws \RuntimeException Если недостаточно средств у отправителя
+     * @throws \App\Exceptions\InsufficientFundsException Если недостаточно средств у отправителя
      */
     public function transfer(TransferDTO $dto): array
     {
@@ -94,21 +95,21 @@ class BalanceService
         if (!$from || !$to) {
             throw new ModelNotFoundException('Пользователь не найден');
         }
-
+        if (!$from->balance || $from->balance->amount < $dto->amount) {
+            throw new \App\Exceptions\InsufficientFundsException('Недостаточно средств');
+        }
         return DB::transaction(function () use ($from, $to, $dto) {
             $fromBalance = $from->balance;
-            if (!$fromBalance || $fromBalance->amount < $dto->amount) {
-                throw new \RuntimeException('Недостаточно средств');
-            }
-
             $fromBalance->amount -= $dto->amount;
             $fromBalance->save();
+
             Transaction::create([
                 'user_id' => $from->id,
                 'type' => 'transfer_out',
                 'amount' => $dto->amount,
                 'comment' => $dto->comment,
             ]);
+
             $toBalance = $to->balance()->firstOrCreate(['user_id' => $to->id]);
             $toBalance->amount += $dto->amount;
             $toBalance->save();
@@ -137,7 +138,7 @@ class BalanceService
      */
     public function balance(int $userId)
     {
-        $user =User::find($userId);
+        $user = User::find($userId);
         if (!$user) {
             throw new ModelNotFoundException('Пользователь не найден');
         }

@@ -16,15 +16,8 @@ class Handler extends ExceptionHandler
             return response()->json(['error' => 'Пользователь не найден'], 404);
         });
 
-//        if ($exception instanceof ModelNotFoundException) {
-//            return response()->json([
-//                'error' => 'Пользователь не найден'
-//            ], 404);
-//        }
-
-        $this->renderable(function (RuntimeException $e, $request) {
+        $this->renderable(function (InsufficientFundsException $e, $request) {
             return response()->json(['error' => $e->getMessage()], 409);
         });
-
     }
 }
