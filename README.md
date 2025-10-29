@@ -28,8 +28,8 @@
 
 1. Клонируем репозиторий:
     ```bash
-    git clone <your-repo-url>
-    cd <project-folder>
+    git clone git@github.com:dartanool/laravel-user-balance-api.git
+    cd laravel-user-balance-api
 2. Копируем .env и настраиваем:
     ```bash
     cp .env.example .env
