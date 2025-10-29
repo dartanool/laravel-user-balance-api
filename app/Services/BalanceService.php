@@ -57,12 +57,12 @@ class BalanceService
         if (!$user) {
             throw new ModelNotFoundException('Пользователь не найден');
         }
-        if (!$user->balance || $user->balance->amount < $dto->amount) {
-            throw new \App\Exceptions\InsufficientFundsException('Недостаточно средств');
-        }
+
         return DB::transaction(function () use ($user, $dto) {
             $balance = $user->balance;
-
+            if (!$balance || $balance->amount < $dto->amount) {
+                throw new \App\Exceptions\InsufficientFundsException('Недостаточно средств');
+            }
 
             $balance->amount -= $dto->amount;
             $balance->save();
@@ -95,11 +95,12 @@ class BalanceService
         if (!$from || !$to) {
             throw new ModelNotFoundException('Пользователь не найден');
         }
-        if (!$from->balance || $from->balance->amount < $dto->amount) {
-            throw new \App\Exceptions\InsufficientFundsException('Недостаточно средств');
-        }
+
         return DB::transaction(function () use ($from, $to, $dto) {
             $fromBalance = $from->balance;
+            if (!$fromBalance || $fromBalance->amount < $dto->amount) {
+                throw new \App\Exceptions\InsufficientFundsException('Недостаточно средств');
+            }
             $fromBalance->amount -= $dto->amount;
             $fromBalance->save();
 

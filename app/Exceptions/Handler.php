@@ -12,12 +12,13 @@ class Handler extends ExceptionHandler
 {
     public function register(): void
     {
-        $this->renderable(function (ModelNotFoundException $e, $request) {
-            return response()->json(['error' => 'Пользователь не найден'], 404);
-        });
+//        $this->renderable(function (ModelNotFoundException $e, $request) {
+//            return response()->json(['error' => 'Пользователь не найден'], 404);
+//        });
+//
+//        $this->renderable(function (InsufficientFundsException $e, $request) {
+//            return response()->json(['error' => $e->getMessage()], 409);
+//        });
 
-        $this->renderable(function (InsufficientFundsException $e, $request) {
-            return response()->json(['error' => $e->getMessage()], 409);
-        });
     }
 }

@@ -187,7 +187,7 @@ class BalanceApiTest extends TestCase
 
         $response->assertStatus(409)
             ->assertJson([
-                'message' => 'Недостаточно средств',
+                'error' => 'Недостаточно средств',
             ]);
     }
 }
