@@ -10,7 +10,6 @@ use App\Http\Requests\TransferRequest;
 use App\Http\Requests\WithdrawRequest;
 use App\Http\Resources\BalanceResource;
 use App\Services\BalanceService;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 
 class BalanceController
@@ -29,10 +28,6 @@ class BalanceController
     {
         $dto = DepositDTO::fromArray($request->validated());
         $balance = $this->balanceService->deposit($dto);
-//        try{
-//        } catch (ModelNotFoundException $exception){
-//            return response()->json(['error' => $exception->getMessage()], 404);
-//        }
 
         return (new BalanceResource($balance))->response()->setStatusCode(200);
     }
@@ -48,12 +43,6 @@ class BalanceController
         $dto = WithdrawDTO::fromArray($request->validated());
         $balance = $this->balanceService->withdraw($dto);
 
-//        try {
-//        } catch (ModelNotFoundException $exception) {
-//            return response()->json(['error' => $exception->getMessage()], 404);
-//        } catch (\RuntimeException $exception) {
-//            return response()->json(['error' => $exception->getMessage()], 409);
-//        }
         return (new BalanceResource($balance))->response()->setStatusCode(200);
     }
 
@@ -70,12 +59,6 @@ class BalanceController
         $dto = TransferDTO::fromArray($request->validated());
         $balance = $this->balanceService->transfer($dto);
 
-//        try {
-//        } catch (ModelNotFoundException $exception) {
-//            return response()->json(['error' => $exception->getMessage()], 404);
-//        } catch (\RuntimeException $exception) {
-//            return response()->json(['error' => $exception->getMessage()], 409);
-//        }
         return response()->json([
             'from' => (new BalanceResource($balance['from']))->toArray($request),
             'to' => (new BalanceResource($balance['to']))->toArray($request),
@@ -91,11 +74,7 @@ class BalanceController
     public function balance(int $userId): JsonResponse
     {
         $balance = $this->balanceService->balance($userId);
-//        try {
-//
-//        } catch (ModelNotFoundException $e) {
-//            return response()->json(['error' => 'Пользователь не найден'], 404);
-//        }
+
         return response()->json([
             'user_id' => $userId,
             'balance' => (float)$balance
